@@ -1,0 +1,14 @@
+# IDE
+.idea
+.vscode
+
+# Node.js
+node_modules/
+dist/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Testing
+sandbox/
