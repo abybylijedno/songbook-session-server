@@ -1,8 +1,10 @@
 import { Session } from './Session';
-import { type IUser } from '@abybylijedno/songbook-protocol';
-import { getSubLogger } from "../commons/logger";
-import { Errors } from './errors';
+import {
+  SessionDeleteReason,
+  type IUser
+} from '@abybylijedno/songbook-protocol';
 
+import { getSubLogger } from "../commons/logger";
 const logger = getSubLogger("SessionsManager");
 
 
@@ -17,18 +19,6 @@ export const SessionsManager = {
    * @returns 
    */
   createSession(user: IUser): Session {
-    {
-      const session = SessionsManager.findUserSession(user);
-      if (session) {
-        logger.debug(`User ${user.name} has already a session ${session.id}`);
-        if (session.creator?.uid === user.uid) {
-          throw Errors.YOU_HAVE_SESSION_ALREADY;
-        } else {
-          throw Errors.YOU_ARE_MEMBER_OF_SESSION;
-        }
-      }
-    }
-
     const session = new Session(user);
     logger.debug(`Session ${session.id} has been created for user ${user.name}`);
     SessionsManager.sessions.push(session);
@@ -41,13 +31,34 @@ export const SessionsManager = {
    * @param id 
    */
   deleteSessionWithId(id: string): Session | undefined {
-    for (let i = 0; i < SessionsManager.sessions.length; i++) {
-      if (SessionsManager.sessions[i]?.id === id) {
-        logger.debug(`Session ${id} has been deleted`);
-        return SessionsManager.sessions.splice(i, 1)[0];
-      }
+    const session = SessionsManager.getSessionById(id);
+    if (!session) {
+      return undefined;
     }
-    return undefined;
+
+    SessionsManager.deleteSessionAndNotifyMembers(session, SessionDeleteReason.CreatorsDecision);
+  },
+
+  /**
+   * Delete a session and notify all members
+   * 
+   * @param session Session to delete 
+   * @param deleteReason Reason for deletion
+   */
+  deleteSessionAndNotifyMembers(session: Session, deleteReason: SessionDeleteReason) {
+    // Notify all members about session expiration
+    for (let j = 0; j < session.members.length; j++) {
+      const member = session.members[j];
+      if (!member) {
+        continue;
+      }
+
+      member.connection?.notifyAboutSessionDeletion(deleteReason);
+    }
+
+    // Remove session
+    const idx = SessionsManager.sessions.indexOf(session);
+    SessionsManager.sessions.splice(idx, 1);
   },
 
   /**
@@ -99,3 +110,26 @@ export const SessionsManager = {
   }
 
 };
+
+/**
+ * Delete expired sessions
+ */
+const deleteExpiredSessions = () => {
+  const now = new Date();
+
+  for (let i = 0; i < SessionsManager.sessions.length; i++) {
+    const session = SessionsManager.sessions[i];
+    if (!session) {
+      continue;
+    }
+
+    if (session.expires <= now) {
+      logger.info(`Session ${session.id} has expired - removing members and session`);
+      SessionsManager.deleteSessionAndNotifyMembers(session, SessionDeleteReason.Expired);
+    }
+  }
+};
+
+// Run the interval
+logger.info("Starting session expiration check interval");
+setInterval(deleteExpiredSessions, 5 * 1000);

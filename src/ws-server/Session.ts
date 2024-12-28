@@ -4,9 +4,12 @@ import {
   SessionMemberRole,
   type ISessionMember,
   type ISessionDetails,
+  ErrorCode,
 } from '@abybylijedno/songbook-protocol';
-import { Errors } from './errors';
 import { ConnectionsManager } from './ConnectionsManager';
+
+
+const getExpirationDate = () => new Date(Date.now() + 60 * 1000);  // 3 * 60 * 60 * 1000
 
 
 class SessionMember implements ISessionMember {
@@ -37,6 +40,11 @@ class SessionMember implements ISessionMember {
   }
 }
 
+export class ErrorSession extends Error {
+  constructor(public code: ErrorCode) {
+    super("Session error");
+  }
+}
 
 export class Session implements ISessionDetails {
 
@@ -46,7 +54,7 @@ export class Session implements ISessionDetails {
 
   constructor(creator: IUser) {
     this.id = randomTicket();
-    this.expires = new Date(Date.now() + 8 * 60 * 60 * 1000); 
+    this.expires = getExpirationDate(); 
     this.members = [
       new SessionMember(
         creator,
@@ -60,6 +68,13 @@ export class Session implements ISessionDetails {
    */
   get creator() {
     return this.members.find(member => member.role === SessionMemberRole.Creator)?.user;
+  }
+
+  /**
+   * Refresh expiration date
+   */
+  refreshExpirationDate() {
+    this.expires = getExpirationDate();
   }
 
   /**
@@ -80,9 +95,9 @@ export class Session implements ISessionDetails {
     const idx = this.members.findIndex(member => member.user.uid === user.uid);
 
     if (idx === -1) {
-      throw Errors.USER_NOT_FOUND_IN_SESSION;
+      throw new ErrorSession(ErrorCode.SessionYouAreNotMember);
     } else if (this.members[idx] && this.members[idx].role === SessionMemberRole.Creator) {
-      throw Errors.CANNOT_REMOVE_CREATOR;
+      throw new ErrorSession(ErrorCode.SessionCannotLeaveAsCreator);
     }
 
     this.members.splice(idx, 1);
