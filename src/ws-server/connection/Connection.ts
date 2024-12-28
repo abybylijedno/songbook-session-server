@@ -1,6 +1,10 @@
 import { WebSocket } from 'uWebSockets.js';
-import { User } from './User';
-import { Session, ErrorSession } from './Session';
+import { User } from '../User';
+import {
+  Session,
+  SessionsManager,
+  ErrorSession
+} from '../session';
 import {
   Command,
   Message,
@@ -11,13 +15,15 @@ import {
   type ISessionJoin,
   type ISpreadSongVerse
 } from "@abybylijedno/songbook-protocol";
-import { SessionsManager } from './SessionsManager';
 
 
-import { getSubLogger } from "../commons/logger";
+import { getSubLogger } from "../../commons/logger";
 const logger = getSubLogger("commander");
 
 
+/**
+ * Connection
+ */
 export class Connection {
 
   private socket: WebSocket<unknown>;

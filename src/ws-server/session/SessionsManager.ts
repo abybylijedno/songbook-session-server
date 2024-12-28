@@ -3,14 +3,19 @@ import {
   SessionDeleteReason,
   type IUser
 } from '@abybylijedno/songbook-protocol';
+import { Duration, DurationLikeObject } from 'luxon';
 
-import { getSubLogger } from "../commons/logger";
+import { getSubLogger } from "../../commons/logger";
 const logger = getSubLogger("SessionsManager");
 
 
+/**
+ * SessionsManager
+ */
 export const SessionsManager = {
 
   sessions: [] as Session[],
+  cleanerInterval: undefined as NodeJS.Timeout | undefined,
 
   /**
    * Create a new session
@@ -62,6 +67,36 @@ export const SessionsManager = {
   },
 
   /**
+   * Delete expired sessions
+   */
+  deleteExpiredSessions() {
+    const now = new Date();
+
+    for (let i = 0; i < SessionsManager.sessions.length; i++) {
+      const session = SessionsManager.sessions[i];
+      if (!session) {
+        continue;
+      }
+
+      if (session.expires <= now) {
+        logger.info(`Session ${session.id} has expired - removing members and session`);
+        SessionsManager.deleteSessionAndNotifyMembers(session, SessionDeleteReason.Expired);
+      }
+    }
+  },
+
+  /**
+   * Start the cleaner
+   */
+  startCleaner(interval: DurationLikeObject) {
+    const dur = Duration.fromObject(interval);
+    logger.info(`Starting session cleaner with interval ${dur.toHuman()}`);
+    SessionsManager.cleanerInterval = setInterval(() => {
+      SessionsManager.deleteExpiredSessions();
+    }, dur.toMillis());
+  },
+
+  /**
    * Get the session by ID
    * 
    * @param id 
@@ -110,26 +145,3 @@ export const SessionsManager = {
   }
 
 };
-
-/**
- * Delete expired sessions
- */
-const deleteExpiredSessions = () => {
-  const now = new Date();
-
-  for (let i = 0; i < SessionsManager.sessions.length; i++) {
-    const session = SessionsManager.sessions[i];
-    if (!session) {
-      continue;
-    }
-
-    if (session.expires <= now) {
-      logger.info(`Session ${session.id} has expired - removing members and session`);
-      SessionsManager.deleteSessionAndNotifyMembers(session, SessionDeleteReason.Expired);
-    }
-  }
-};
-
-// Run the interval
-logger.info("Starting session expiration check interval");
-setInterval(deleteExpiredSessions, 5 * 1000);

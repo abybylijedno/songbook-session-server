@@ -1,6 +1,7 @@
 import { App } from "uWebSockets.js";
 import { getSubLogger } from "../commons/logger";
-import { ConnectionsManager } from "./ConnectionsManager";
+import { ConnectionsManager } from "./connection";
+import { SessionsManager } from "./session";
 
 
 const logger = getSubLogger("ws-server");
@@ -39,6 +40,7 @@ const PORT = 8081;
 app.listen(PORT, (token) => {
   if (token) {
     logger.info(`Listening on port ${PORT}`);
+    SessionsManager.startCleaner({ seconds: 5 });
   } else {
     logger.error(`Failed to listen to port ${PORT}`);
   }

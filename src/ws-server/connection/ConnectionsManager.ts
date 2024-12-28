@@ -1,9 +1,13 @@
 import { Connection } from './Connection';
 import { type WebSocket } from 'uWebSockets.js';
-import { getSubLogger } from "../commons/logger";
+import { type IUser } from '@abybylijedno/songbook-protocol';
 
+import { getSubLogger } from "../../commons/logger";
 const logger = getSubLogger("ConnectionsManager");
 
+/**
+ * Connections manager
+ */
 export const ConnectionsManager = {
   connections: new Map<WebSocket<unknown>, Connection>(),
 
@@ -52,6 +56,22 @@ export const ConnectionsManager = {
       throw new Error(`Connection not found`);
     }
     return connection;
+  },
+
+  /**
+   * Find connection of user
+   * 
+   * @param user 
+   * @returns 
+   */
+  findConnectionOfUser(user: IUser): Connection | undefined {
+    for (const [ws, connection] of ConnectionsManager.connections) {
+      if (connection.user.uid === user.uid) {
+        return connection;
+      }
+    }
+
+    return undefined;
   },
 
   /**

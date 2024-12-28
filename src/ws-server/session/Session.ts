@@ -1,52 +1,18 @@
-import { randomTicket } from '../commons/random';
+import { randomTicket } from '../../commons/random';
 import {
+  type ISessionDetails,
   type IUser,
   SessionMemberRole,
-  type ISessionMember,
-  type ISessionDetails,
   ErrorCode,
 } from '@abybylijedno/songbook-protocol';
-import { ConnectionsManager } from './ConnectionsManager';
-import { DateTime } from "luxon";
+import { ErrorSession } from './ErrorSession';
+import { getExpirationDate } from './utils';
+import { SessionMember } from './SessionMember';
 
 
-const getExpirationDate = () => DateTime.now().plus({ hours: 2 }).toJSDate();
-
-
-class SessionMember implements ISessionMember {
-  user: IUser;
-  role: SessionMemberRole;
-
-  constructor(user: IUser, role: SessionMemberRole = SessionMemberRole.Member) {
-    this.user = user;
-    this.role = role;
-  }
-
-  get connection() {
-    for (const [ws, connection] of ConnectionsManager.connections) {
-      if (connection.user.uid === this.user.uid) {
-        return connection;
-      }
-    }
-  }
-
-  toObjectForUser(user: IUser) {
-    return {
-      user: {
-        name: this.user.name,
-        uid: this.user.uid === user.uid ? this.user.uid : undefined
-      },
-      role: this.role
-    }
-  }
-}
-
-export class ErrorSession extends Error {
-  constructor(public code: ErrorCode) {
-    super("Session error");
-  }
-}
-
+/**
+ * Session
+ */
 export class Session implements ISessionDetails {
 
   public id: string;
