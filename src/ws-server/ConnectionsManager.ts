@@ -67,6 +67,20 @@ export const ConnectionsManager = {
     }
 
     ConnectionsManager.getConnection(ws).handleCommand(message);
+  },
+
+  /**
+   * Handle pong
+   * 
+   * @param ws 
+   */
+  handlePong(ws: WebSocket<unknown>) {
+    if (!ConnectionsManager.hasConnection(ws)) {
+      logger.warn(`Received pong from unknown client`);
+      return;
+    }
+
+    ConnectionsManager.getConnection(ws).handlePong();
   }
 
 };

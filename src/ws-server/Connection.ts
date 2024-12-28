@@ -120,6 +120,17 @@ export class Connection {
   }
 
   /**
+   * Handle Pong
+   */
+  handlePong() {
+    const session = this.session;
+    if (session && session.creator?.uid === this.user.uid) {
+      logger.debug(`User ${this.user.name} is the creator of session ${session.id} - refreshing expiration date`);
+      session.refreshExpirationDate();
+    }
+  }
+
+  /**
    * Handle incoming message
    * This function is called when a client sends a message.
    * It decodes the message and calls the appropriate function.

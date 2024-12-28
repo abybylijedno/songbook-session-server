@@ -7,9 +7,10 @@ import {
   ErrorCode,
 } from '@abybylijedno/songbook-protocol';
 import { ConnectionsManager } from './ConnectionsManager';
+import { DateTime } from "luxon";
 
 
-const getExpirationDate = () => new Date(Date.now() + 60 * 1000);  // 3 * 60 * 60 * 1000
+const getExpirationDate = () => DateTime.now().plus({ hours: 2 }).toJSDate();
 
 
 class SessionMember implements ISessionMember {

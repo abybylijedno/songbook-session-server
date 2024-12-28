@@ -28,6 +28,10 @@ app.ws("/ws", {
     }
 
     ConnectionsManager.handleMessage(ws, message);
+  },
+
+  pong: (ws) => {
+    ConnectionsManager.handlePong(ws);
   }
 });
 
