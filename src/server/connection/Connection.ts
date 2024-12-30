@@ -1,4 +1,4 @@
-import WebSocket from 'ws';
+import { WebSocket } from 'ws';
 import { User } from '../User';
 import {
   Session,

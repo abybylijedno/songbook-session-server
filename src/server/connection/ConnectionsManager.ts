@@ -1,5 +1,5 @@
 import { Connection } from './Connection';
-import WebSocket from 'ws';
+import { WebSocket } from 'ws';
 import { type IUser } from '@abybylijedno/songbook-protocol';
 
 import { getSubLogger } from "../../commons/logger";
