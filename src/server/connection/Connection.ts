@@ -46,7 +46,7 @@ export class Connection {
    * Close connection
    */
   close() {
-    this.socket.end();
+    this.socket.terminate();
   }
 
   /**
