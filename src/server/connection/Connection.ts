@@ -1,4 +1,4 @@
-import { WebSocket } from 'uWebSockets.js';
+import WebSocket from 'ws';
 import { User } from '../User';
 import {
   Session,
@@ -18,7 +18,7 @@ import {
 
 
 import { getSubLogger } from "../../commons/logger";
-const logger = getSubLogger("commander");
+const logger = getSubLogger("Connection");
 
 
 /**
@@ -26,7 +26,7 @@ const logger = getSubLogger("commander");
  */
 export class Connection {
 
-  private socket: WebSocket<unknown>;
+  private socket: WebSocket;
   public user: User;
 
   get session(): Session | undefined {
@@ -37,7 +37,7 @@ export class Connection {
     }
   }
 
-  constructor(socket: WebSocket<unknown>) {
+  constructor(socket: WebSocket) {
     this.socket = socket;
     this.user = new User();
   }
@@ -94,7 +94,7 @@ export class Connection {
   /**
    * Send SessionDetails
    */
-  private sendSessionDetails() {
+  public sendSessionDetails() {
     const session = this.session;
 
     if (!session) {
@@ -288,7 +288,7 @@ export class Connection {
     session.addUser(this.user);
     logger.debug(`User ${this.user.name} joined session ${session.id}`);
     
-    this.sendSessionDetails();
+    session.sendDetailsToEveryMember();
   }
 
   /**
@@ -309,12 +309,14 @@ export class Connection {
     }
 
     try {
-      this.session.removeUser(this.user);
-      logger.debug(`User ${this.user.name} left session ${this.session.id}`);
+      session.removeUser(this.user);
+      logger.debug(`User ${this.user.name} left session ${session.id}`);
+      
       this.sendSessionDeleted(SessionDeleteReason.UserLeft);
+      session.sendDetailsToEveryMember();
       
     } catch (e) {
-      logger.error(`Error while leaving session ${this.session?.id} for user ${this.user.name}: ${e}`);
+      logger.error(`Error while leaving session ${session?.id} for user ${this.user.name}: ${e}`);
       
       if (e instanceof ErrorSession) {
         this.sendError(e.code);

@@ -1,5 +1,5 @@
 import { Connection } from './Connection';
-import { type WebSocket } from 'uWebSockets.js';
+import WebSocket from 'ws';
 import { type IUser } from '@abybylijedno/songbook-protocol';
 
 import { getSubLogger } from "../../commons/logger";
@@ -9,7 +9,7 @@ const logger = getSubLogger("ConnectionsManager");
  * Connections manager
  */
 export const ConnectionsManager = {
-  connections: new Map<WebSocket<unknown>, Connection>(),
+  connections: new Map<WebSocket, Connection>(),
 
   /**
    * Add a new connection
@@ -17,7 +17,7 @@ export const ConnectionsManager = {
    * @param ws 
    * @returns 
    */
-  addConnection(ws: WebSocket<unknown>): Connection {
+  addConnection(ws: WebSocket): Connection {
     logger.debug(`Adding new connection`);
     const connection = new Connection(ws);
     ConnectionsManager.connections.set(ws, connection);
@@ -29,7 +29,7 @@ export const ConnectionsManager = {
    * 
    * @param ws 
    */
-  deleteConnection(ws: WebSocket<unknown>): void {
+  deleteConnection(ws: WebSocket): void {
     logger.debug(`Deleting connection`);
     ConnectionsManager.connections.delete(ws);
   },
@@ -40,7 +40,7 @@ export const ConnectionsManager = {
    * @param ws 
    * @returns 
    */
-  hasConnection(ws: WebSocket<unknown>): boolean {
+  hasConnection(ws: WebSocket): boolean {
     return ConnectionsManager.connections.has(ws);
   },
 
@@ -50,7 +50,7 @@ export const ConnectionsManager = {
    * @param ws 
    * @returns 
    */
-  getConnection(ws: WebSocket<unknown>): Connection {
+  getConnection(ws: WebSocket): Connection {
     const connection = ConnectionsManager.connections.get(ws);
     if (!connection) {
       throw new Error(`Connection not found`);
@@ -80,7 +80,7 @@ export const ConnectionsManager = {
    * @param ws 
    * @param message 
    */
-  handleMessage(ws: WebSocket<unknown>, message: ArrayBuffer) {
+  handleMessage(ws: WebSocket, message: ArrayBuffer) {
     if (!ConnectionsManager.hasConnection(ws)) {
       logger.warn(`Received message from unknown client`);
       return;
@@ -94,7 +94,7 @@ export const ConnectionsManager = {
    * 
    * @param ws 
    */
-  handlePong(ws: WebSocket<unknown>) {
+  handlePong(ws: WebSocket) {
     if (!ConnectionsManager.hasConnection(ws)) {
       logger.warn(`Received pong from unknown client`);
       return;

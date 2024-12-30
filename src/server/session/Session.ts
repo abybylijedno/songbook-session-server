@@ -80,6 +80,15 @@ export class Session implements ISessionDetails {
     return this.members.some(member => member.user.uid === user.uid);
   }
 
+  /**
+   * Send session details to all members
+   */
+  sendDetailsToEveryMember() {
+    for(const member of this.members) {
+      member.connection?.sendSessionDetails();
+    }
+  }
+
   toObjectForUser(user: IUser) {
     return {
       id: this.id,
