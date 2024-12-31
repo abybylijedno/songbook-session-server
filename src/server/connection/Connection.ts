@@ -62,7 +62,7 @@ export class Connection {
    * @param message 
    */
   private sendMessage(message: Message) {
-    this.socket.send(message.encode(), true);
+    this.socket.send(message.encode());
   }
 
   /**

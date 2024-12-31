@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "swc src --delete-dir-on-start --out-dir dist",
-    "bundle": "ncc build dist/src/server/index.js -o dist/build -m"
+    "build": "rolldown src/server/index.ts -o dist/server.js -f cjs -m"
   },
   "author": "Marek Sierociński",
   "license": "GPL-3.0",
@@ -17,14 +16,10 @@
     "ws": "^8.18.0"
   },
   "devDependencies": {
-    "@swc/cli": "^0.5.2",
-    "@swc/core": "^1.10.1",
     "@types/long": "^5.0.0",
     "@types/luxon": "^3.4.2",
     "@types/node": "^22.10.2",
     "@types/ws": "^8.5.13",
-    "@vercel/ncc": "^0.38.3",
-    "chokidar": "^3.6.0",
-    "eslint": "^9.17.0"
+    "rolldown": "^1.0.0-beta.1"
   }
 }

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/docker-bake.json",
+  "variable": {
+    "APP_NAME": {},
+    "DOCKER_USER": {},
+    "VERSION": {}
+  },
+  "group": {
+    "default": {
+      "targets": ["app"]
+    }
+  },
+  "target": {
+    "app": {
+      "context": ".",
+      "dockerfile": "Dockerfile",
+      "platforms": [
+        "linux/amd64",
+        "linux/arm64"
+      ],
+      "tags": [
+        "${DOCKER_USER}/${APP_NAME}:${VERSION}",
+        "${DOCKER_USER}/${APP_NAME}:latest"
+      ]
+    }
+  }
+}

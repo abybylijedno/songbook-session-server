@@ -65,7 +65,7 @@ export const ConnectionsManager = {
    * @returns 
    */
   findConnectionOfUser(user: IUser): Connection | undefined {
-    for (const [ws, connection] of ConnectionsManager.connections) {
+    for (const [,connection] of ConnectionsManager.connections) {
       if (connection.user.uid === user.uid) {
         return connection;
       }
