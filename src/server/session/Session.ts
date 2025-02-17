@@ -20,7 +20,7 @@ export class Session implements ISessionDetails {
   public members: SessionMember[];
 
   constructor(creator: IUser) {
-    this.id = randomTicket();
+    this.id = randomTicket(4);
     this.expires = getExpirationDate(); 
     this.members = [
       new SessionMember(
