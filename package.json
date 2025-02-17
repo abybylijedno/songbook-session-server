@@ -1,5 +1,5 @@
 {
-  "name": "@abybylijedno/songbook-server",
+  "name": "@abybylijedno/songbook-session-server",
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
