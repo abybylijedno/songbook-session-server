@@ -20,6 +20,6 @@
     "@types/luxon": "^3.4.2",
     "@types/node": "^22.10.2",
     "@types/ws": "^8.5.13",
-    "rolldown": "^1.0.0-beta.1"
+    "rolldown": "^1.0.0-beta.34"
   }
 }
