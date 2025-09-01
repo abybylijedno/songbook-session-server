@@ -1,4 +1,4 @@
-FROM node:22-alpine3.20 AS builder
+FROM node:22-alpine3.22 AS builder
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ RUN npm run build
 
 # ----------------------------
 
-FROM node:22-alpine3.20
+FROM node:22-alpine3.22
 
 ARG VERSION=0.0.0
 
